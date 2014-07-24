@@ -102,8 +102,8 @@ class TextValidateDialog(wx.Dialog):
     buttons.Realize()
 
     #Layout
-    sizer = wx.BoxSizer(wx.HORIZONTAL)
-    sizer.Add(self.txtctrl, 1 , wx.EXPAND)
+    sizer = wx.BoxSizer(wx.VERTICAL)
+    sizer.Add(self.txtctrl)
     sizer.Add(buttons)
     self.panel.SetSizer(sizer)
 
