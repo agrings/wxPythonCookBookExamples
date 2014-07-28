@@ -1,13 +1,59 @@
 import wx
-import wx.lib.platebtn as pbtn
-import wx.lib.agw.gradientbutton as gbtn
 
-ID_READ_ONLY = wx.NewId()
+ART_MAP = { wx.ID_CUT : wx.ART_CUT,
+            wx.ID_COPY : wx.ART_COPY,
+            wx.ID_PASTE : wx.ART_PASTE }
+
+class PopupMenuMixin(object):
+  def __init__(self):
+    super(PopupMenuMixin, self).__init__()
+    
+    # Attributes
+    self._menu = None
+    # Event Handlers
+    self.Bind(wx.EVT_CONTEXT_MENU, self.OnContextMenu)
+  
+  def OnContextMenu(self, event):
+    """Creates and shows the Menu"""
+    if self._menu is not None:
+      self._menu.Destroy()
+    self._menu = wx.Menu()
+    self.CreateContextMenu(self._menu)
+    self.PopupMenu(self._menu)
+
+  def CreateContextMenu(self, menu):
+    """Override in subclass to create the menu"""
+    raise NotImplementedError
+
+class PanelWithMenu(wx.Panel, PopupMenuMixin):
+  def __init__(self, parent):
+    wx.Panel.__init__(self, parent)
+    PopupMenuMixin.__init__(self)
+  
+  def CreateContextMenu(self, menu):
+    """PopupMenuMixin Implementation"""
+    menu.Append(wx.ID_CUT)
+    menu.Append(wx.ID_COPY)
+    menu.Append(wx.ID_PASTE)
+
+class ContextMenuFrame(wx.Frame):
+  def __init__(self, *args, **kwargs):
+    super(ContextMenuFrame, self).__init__(*args, **kwargs)
+    
+    self.panel = PanelWithMenu(self)
+    self.txtctrl = wx.TextCtrl(self.panel, style=wx.TE_MULTILINE)
+        
+    # Layout
+    sizer = wx.BoxSizer(wx.HORIZONTAL)
+    sizer.Add(self.txtctrl, 1, wx.EXPAND)
+    self.panel.SetSizer(sizer)
+
+
 
 class MyApp(wx.App):
   def OnInit(self):
     #como eh a janela principal parent=None
-    self.frame = MenuFrame(None, title="The Main Frame")
+    self.frame = ContextMenuFrame(None, title="The Context Menu Frame")
     #Configura o frame como a janela no topo da aplicacao
     self.SetTopWindow(self.frame)
     self.frame.Show()
